@@ -48,5 +48,6 @@ async fn main() -> Result<()> {
         Commands::Status(cmd) => commands::status::handle(cmd, &config).await,
         Commands::Config(cmd) => commands::config::handle(cmd, &config).await,
         Commands::Health(cmd) => commands::health::handle(cmd, &config).await,
+        Commands::Download(cmd) => commands::download::handle(cmd, &config).await,
     }
 }

@@ -54,6 +54,9 @@ pub enum Commands {
     
     /// Check server health
     Health(HealthCommand),
+    
+    /// Download a model from remote repository
+    Download(DownloadCommand),
 }
 
 #[derive(Parser, Debug)]
@@ -206,4 +209,26 @@ pub struct HealthCommand {
     /// Check specific health aspects (server, models, memory)
     #[arg(short, long)]
     pub check: Vec<String>,
+}
+
+#[derive(Parser, Debug)]
+pub struct DownloadCommand {
+    /// Model name to download (e.g., "microsoft/DialoGPT-small")
+    pub model_name: String,
+
+    /// Model format hint (gguf, mlx, safetensors, candle)
+    #[arg(short, long)]
+    pub format: Option<String>,
+
+    /// Show download progress
+    #[arg(short, long)]
+    pub progress: bool,
+
+    /// Force re-download if already exists
+    #[arg(long)]
+    pub force: bool,
+
+    /// Custom download directory (optional)
+    #[arg(short, long)]
+    pub directory: Option<String>,
 }

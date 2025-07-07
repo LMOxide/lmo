@@ -11,3 +11,4 @@ pub mod unload;
 pub mod status;
 pub mod config;
 pub mod health;
+pub mod download;
