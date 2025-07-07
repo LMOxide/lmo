@@ -27,37 +27,13 @@ pub async fn handle(cmd: HealthCommand, config: &CliConfig) -> Result<()> {
         
         output.key_value("Status", &health.status);
         
-        if let Some(ref version) = health.version {
-            output.key_value("Version", version);
-        }
+        output.key_value("Version", &health.server_version);
         
-        if let Some(uptime) = health.uptime_seconds {
-            output.key_value("Uptime", &format_duration(uptime));
-        }
+        output.key_value("Uptime", &format_duration(health.uptime_seconds));
         
-        if let Some(loaded_models) = health.loaded_models {
-            output.key_value("Loaded Models", &loaded_models.to_string());
-        }
+        output.key_value("Timestamp", &health.timestamp);
         
-        if let Some(ref memory) = health.memory {
-            println!();
-            output.subheader("Memory Information");
-            output.key_value("Total Memory", &format_bytes(memory.total_bytes));
-            output.key_value("Used Memory", &format_bytes(memory.used_bytes));
-            output.key_value("Available Memory", &format_bytes(memory.available_bytes));
-            output.key_value("Model Memory", &format_bytes(memory.model_memory_bytes));
-            
-            let usage_percent = (memory.used_bytes as f64 / memory.total_bytes as f64) * 100.0;
-            output.key_value("Memory Usage", &format!("{:.1}%", usage_percent));
-        }
-        
-        if let Some(ref backends) = health.backends {
-            println!();
-            output.subheader("Available Backends");
-            for (name, info) in backends {
-                output.key_value(name, &info.to_string());
-            }
-        }
+        println!();
     } else {
         // Simple health check
         if health.status == "healthy" {
@@ -66,13 +42,7 @@ pub async fn handle(cmd: HealthCommand, config: &CliConfig) -> Result<()> {
             output.warning(&format!("Server status: {}", health.status));
         }
         
-        if let Some(ref version) = health.version {
-            output.info(&format!("Server version: {}", version));
-        }
-        
-        if let Some(loaded_models) = health.loaded_models {
-            output.info(&format!("Loaded models: {}", loaded_models));
-        }
+        output.info(&format!("Server version: {}", health.server_version));
     }
     
     Ok(())
