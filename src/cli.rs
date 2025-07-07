@@ -128,7 +128,7 @@ pub struct LoadCommand {
     pub model_id: String,
 
     /// Specific filename to load (optional)
-    #[arg(short, long)]
+    #[arg(short = 'F', long)]
     pub filename: Option<String>,
 
     /// Force reload if already loaded
