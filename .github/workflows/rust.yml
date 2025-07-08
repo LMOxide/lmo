@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: LMOxide/lmoclient@0.1.0
-          path: 'lmoclient'
+          path: './lmoclient'
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
