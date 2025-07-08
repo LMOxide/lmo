@@ -7,12 +7,11 @@ jobs:
 
     steps:
       - name: Checkout
-      - uses: actions/checkout@v2
-      - with:
+        uses: actions/checkout@v2
       - name: Checkout LMO Client
-      - uses: actions/checkout@v2
-      - repository: LMOxide/lmoclient@1.1.0
-      - path: '../lmoclient'
+        uses: actions/checkout@v2
+        repository: LMOxide/lmoclient@1.1.0
+        path: '../lmoclient'
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
