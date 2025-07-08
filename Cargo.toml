@@ -12,6 +12,9 @@ clap = { version = "4.0", features = ["derive", "env", "color"] }
 # HTTP client library
 lmoclient = { path = "../lmoclient" }
 
+# Server types (for shared types)
+lmoserver = { path = "../lmoserver" }
+
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }
 

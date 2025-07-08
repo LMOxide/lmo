@@ -42,7 +42,7 @@ async fn main() -> Result<()> {
     // Handle commands
     match cli.command {
         Commands::Models(cmd) => commands::models::handle(cmd, &config).await,
-        Commands::Chat(cmd) => commands::chat::handle(cmd, &config).await,
+        Commands::Chat(cmd) => commands::chat::handle(cmd, &config, cli.verbose).await,
         Commands::Load(cmd) => commands::load::handle(cmd, &config).await,
         Commands::Unload(cmd) => commands::unload::handle(cmd, &config).await,
         Commands::Status(cmd) => commands::status::handle(cmd, &config).await,

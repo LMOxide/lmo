@@ -20,21 +20,8 @@ pub async fn handle(cmd: LoadCommand, config: &CliConfig) -> Result<()> {
     output.header(&format!("Loading Model: {}", cmd.model_id));
     println!();
     
-    // Verify model exists in registry
-    output.progress("Verifying model exists");
-    let models_response = client.list_models().await?;
-    let model_found = models_response.models.iter()
-        .any(|m| m.id == cmd.model_id || m.id.contains(&cmd.model_id));
-    
-    output.progress_done();
-    
-    if !model_found {
-        output.warning(&format!("Model '{}' not found in available models registry.", cmd.model_id));
-        output.info("Use 'lmo models --search <term>' to find available models.");
-        return Ok(());
-    }
-    
-    output.success(&format!("✓ Model '{}' found in registry", cmd.model_id));
+    // Note: Model verification is handled by the server's Universal Model Engine
+    // which will search both HuggingFace registry and local repository
     
     // Attempt to load the model
     println!();

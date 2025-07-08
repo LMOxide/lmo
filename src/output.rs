@@ -155,6 +155,25 @@ impl OutputFormatter {
             println!("failed: {}", error);
         }
     }
+    
+    /// Print a status message
+    pub fn status(&self, message: &str) {
+        if self.enable_colors {
+            print!("{} {}... ", "⚡".yellow(), message);
+        } else {
+            print!("⚡ {}... ", message);
+        }
+        io::stdout().flush().unwrap();
+    }
+    
+    /// Print a debug message
+    pub fn debug(&self, message: &str) {
+        if self.enable_colors {
+            println!("{} {}", "🔍".dimmed(), message.dimmed());
+        } else {
+            println!("🔍 {}", message);
+        }
+    }
 }
 
 /// Helper to format file sizes
