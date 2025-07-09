@@ -169,6 +169,8 @@ pub async fn handle(cmd: DownloadCommand, config: &CliConfig) -> Result<()> {
                                 }
                                 lmoclient::DownloadEventType::Completed => {
                                     progress_bar.finish_with_message("✅ Download completed!");
+                                    println!();
+                                    output.success("Model is now available for loading with 'lmo load'");
                                     break;
                                 }
                                 lmoclient::DownloadEventType::Failed => {
@@ -222,9 +224,6 @@ pub async fn handle(cmd: DownloadCommand, config: &CliConfig) -> Result<()> {
             }
         }
     }
-    
-    println!();
-    output.success("Model is now available for loading with 'lmo load'");
     
     Ok(())
 }

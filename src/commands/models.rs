@@ -19,8 +19,36 @@ pub async fn handle(cmd: ModelsCommand, config: &CliConfig) -> Result<()> {
     
     output.progress("Fetching models");
     
-    // Fetch models with filters
-    let models_response = client.list_models().await?;
+    // Fetch models with filters (local or remote)
+    let models_response = if cmd.local {
+        // Get local models
+        let local_response = client.list_local_models().await?;
+        
+        // Convert local models to ModelInfo format for consistent display
+        let models: Vec<lmoserver::shared_types::ModelInfo> = local_response.models.into_iter().map(|local_model| {
+            lmoserver::shared_types::ModelInfo {
+                id: local_model.filename.clone(),
+                author: None, // Local models don't have author info
+                downloads: 0, // Local models don't have download counts
+                tags: vec![], // Could extract from filename/path later
+                created_at: local_model.last_modified.to_rfc3339(),
+                updated_at: local_model.last_modified.to_rfc3339(),
+                pipeline_tag: None,
+                library_name: None,
+                files: vec![], // Local models don't have file info in this format
+                supported_formats: vec![], // Could be populated later
+            }
+        }).collect();
+        
+        lmoclient::models::ModelListResponse {
+            models,
+            total: Some(local_response.total_count as u32),
+            has_more: false,
+        }
+    } else {
+        // Get remote models from HuggingFace
+        client.list_models().await?
+    };
     
     output.progress_done();
     
@@ -95,7 +123,12 @@ pub async fn handle(cmd: ModelsCommand, config: &CliConfig) -> Result<()> {
     models.truncate(cmd.limit as usize);
     
     // Display results
-    output.header(&format!("Available Models ({} found)", models.len()));
+    let title = if cmd.local {
+        format!("Local Models ({} found)", models.len())
+    } else {
+        format!("Available Models ({} found)", models.len())
+    };
+    output.header(&title);
     println!();
     
     match &config.output_format[..] {
@@ -106,27 +139,43 @@ pub async fn handle(cmd: ModelsCommand, config: &CliConfig) -> Result<()> {
             output.print(&models)?;
         }
         _ => {
-            // Table format
-            println!("{:<40} {:<20} {:<15} {:<20} {:<30}", 
-                "Model ID", "Author", "Downloads", "Pipeline", "Tags");
-            println!("{}", "-".repeat(125));
-            
-            for model in &models {
-                let author = model.author.as_deref().unwrap_or("Unknown");
-                let pipeline = model.pipeline_tag.as_deref().unwrap_or("Unknown");
-                let tags = if model.tags.is_empty() {
-                    "None".to_string()
-                } else {
-                    truncate_text(&model.tags.join(", "), 30)
-                };
+            // Table format - adjust headers based on local vs remote
+            if cmd.local {
+                println!("{:<40} {:<15} {:<20} {:<30}", 
+                    "Model ID", "Size", "Last Modified", "Path");
+                println!("{}", "-".repeat(105));
                 
+                for model in &models {
+                    // For local models, we need to extract size info - for now show as "N/A"
+                    println!("{:<40} {:<15} {:<20} {:<30}", 
+                        truncate_text(&model.id, 40),
+                        "N/A", // Size info not available in ModelInfo format
+                        truncate_text(&model.updated_at, 20),
+                        "N/A" // Path info not available in ModelInfo format
+                    );
+                }
+            } else {
                 println!("{:<40} {:<20} {:<15} {:<20} {:<30}", 
-                    truncate_text(&model.id, 40),
-                    truncate_text(author, 20),
-                    format_number(model.downloads),
-                    truncate_text(pipeline, 20),
-                    tags
-                );
+                    "Model ID", "Author", "Downloads", "Pipeline", "Tags");
+                println!("{}", "-".repeat(125));
+                
+                for model in &models {
+                    let author = model.author.as_deref().unwrap_or("Unknown");
+                    let pipeline = model.pipeline_tag.as_deref().unwrap_or("Unknown");
+                    let tags = if model.tags.is_empty() {
+                        "None".to_string()
+                    } else {
+                        truncate_text(&model.tags.join(", "), 30)
+                    };
+                    
+                    println!("{:<40} {:<20} {:<15} {:<20} {:<30}", 
+                        truncate_text(&model.id, 40),
+                        truncate_text(author, 20),
+                        format_number(model.downloads),
+                        truncate_text(pipeline, 20),
+                        tags
+                    );
+                }
             }
         }
     }

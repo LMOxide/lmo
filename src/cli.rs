@@ -61,6 +61,10 @@ pub enum Commands {
 
 #[derive(Parser, Debug)]
 pub struct ModelsCommand {
+    /// Show local models only
+    #[arg(long)]
+    pub local: bool,
+
     /// Search term to filter models
     #[arg(short, long)]
     pub search: Option<String>,
@@ -81,7 +85,7 @@ pub struct ModelsCommand {
     #[arg(short, long, default_value = "20")]
     pub limit: u32,
 
-    /// Sort by field (downloads, author, created)
+    /// Sort by field (downloads, author, created, size)
     #[arg(long, default_value = "downloads")]
     pub sort: String,
 
